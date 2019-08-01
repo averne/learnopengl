@@ -19,7 +19,7 @@ RELEASE_FLAGS     =    $(FLAGS) -O2 -ffunction-sections -fdata-sections -flto
 RELEASE_CFLAGS    =    $(CFLAGS)
 RELEASE_CXXFLAGS  =    $(CXXFLAGS)
 RELEASE_ASFLAGS   =    $(ASFLAGS)
-RELEASE_LDFLAGS   =    $(LDFLAGS) -Wl,--gc-sections -flto
+RELEASE_LDFLAGS   =    $(LDFLAGS) -Wl,--gc-sections -flto -s
 
 DEBUG_FLAGS       =    $(FLAGS) -g -Og -DDEBUG=1
 DEBUG_CFLAGS      =    $(CFLAGS)

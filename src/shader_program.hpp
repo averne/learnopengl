@@ -1,10 +1,12 @@
 #pragma once
 
-#include <GLFW/glfw3.h>
 #include <string>
 #include <iostream>
 #include <algorithm>
 #include <initializer_list>
+#include <type_traits>
+#include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
 
 #include "shader.hpp"
 #include "object.hpp"
@@ -38,6 +40,40 @@ class ShaderProgram: public GlObject {
 
         void use() const {
             glUseProgram(get_handle());
+        }
+
+        template <typename T>
+        void set_value(const std::string &name, const T &val) {
+            if constexpr (std::is_same_v<T, GLboolean> || std::is_same_v<T, GLint>)
+                glUniform1i(glGetUniformLocation(get_handle(), name.c_str()), (int)val);
+            else if constexpr (std::is_same_v<T, GLfloat>)
+                glUniform1f(glGetUniformLocation(get_handle(), name.c_str()), val);
+            else if constexpr (std::is_same_v<T, glm::vec2>)
+                glUniform2fv(glGetUniformLocation(get_handle(), name.c_str()), 1, glm::value_ptr(val));
+            else if constexpr (std::is_same_v<T, glm::vec3>)
+                glUniform3fv(glGetUniformLocation(get_handle(), name.c_str()), 1, glm::value_ptr(val));
+            else if constexpr (std::is_same_v<T, glm::vec4>)
+                glUniform4fv(glGetUniformLocation(get_handle(), name.c_str()), 1, glm::value_ptr(val));
+            else if constexpr (std::is_same_v<T, glm::mat2>)
+                glUniformMatrix2fv(glGetUniformLocation(get_handle(), name.c_str()), 1, GL_FALSE, glm::value_ptr(val));
+            else if constexpr (std::is_same_v<T, glm::mat3>)
+                glUniformMatrix3fv(glGetUniformLocation(get_handle(), name.c_str()), 1, GL_FALSE, glm::value_ptr(val));
+            else if constexpr (std::is_same_v<T, glm::mat4>)
+                glUniformMatrix4fv(glGetUniformLocation(get_handle(), name.c_str()), 1, GL_FALSE, glm::value_ptr(val));
+            else
+                ; // throw
+        }
+
+        void set_value(const std::string &name, float val_1, float val_2) {
+            glUniform2f(glGetUniformLocation(get_handle(), name.c_str()), val_1, val_2);
+        }
+
+        void set_value(const std::string &name, float val_1, float val_2, float val_3) {
+            glUniform3f(glGetUniformLocation(get_handle(), name.c_str()), val_1, val_2, val_3);
+        }
+
+        void set_value(const std::string &name, float val_1, float val_2, float val_3, float val_4) {
+            glUniform4f(glGetUniformLocation(get_handle(), name.c_str()), val_1, val_2, val_3, val_4);
         }
 
         std::string get_log() const {
