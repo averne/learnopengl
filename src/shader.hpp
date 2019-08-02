@@ -21,12 +21,12 @@ class Shader: public GlObject {
             glDeleteShader(get_handle());
         }
 
-        void set_source(const std::string &src) {
+        void set_source(const std::string &src) const {
             const char *dat = src.c_str();
             glShaderSource(get_handle(), 1, &dat, NULL);
         }
 
-        GLint compile() {
+        GLint compile() const {
             GLint rc;
             glCompileShader(get_handle());
             glGetShaderiv(get_handle(), GL_COMPILE_STATUS, &rc);

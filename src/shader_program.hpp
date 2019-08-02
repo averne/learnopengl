@@ -30,7 +30,7 @@ class ShaderProgram: public GlObject {
                 [this](const GlObject &shader) { glAttachShader(get_handle(), shader.get_handle()); });
         }
 
-        GLint link() {
+        GLint link() const {
             GLint rc;
             glLinkProgram(get_handle());
             glGetProgramiv(get_handle(), GL_LINK_STATUS, &rc);
@@ -43,7 +43,7 @@ class ShaderProgram: public GlObject {
         }
 
         template <typename T>
-        void set_value(const std::string &name, const T &val) {
+        void set_value(const std::string &name, const T &val) const {
             if constexpr (std::is_same_v<T, GLboolean> || std::is_same_v<T, GLint>)
                 glUniform1i(glGetUniformLocation(get_handle(), name.c_str()), (int)val);
             else if constexpr (std::is_same_v<T, GLfloat>)
@@ -64,15 +64,15 @@ class ShaderProgram: public GlObject {
                 ; // throw
         }
 
-        void set_value(const std::string &name, float val_1, float val_2) {
+        void set_value(const std::string &name, float val_1, float val_2) const {
             glUniform2f(glGetUniformLocation(get_handle(), name.c_str()), val_1, val_2);
         }
 
-        void set_value(const std::string &name, float val_1, float val_2, float val_3) {
+        void set_value(const std::string &name, float val_1, float val_2, float val_3) const {
             glUniform3f(glGetUniformLocation(get_handle(), name.c_str()), val_1, val_2, val_3);
         }
 
-        void set_value(const std::string &name, float val_1, float val_2, float val_3, float val_4) {
+        void set_value(const std::string &name, float val_1, float val_2, float val_3, float val_4) const {
             glUniform4f(glGetUniformLocation(get_handle(), name.c_str()), val_1, val_2, val_3, val_4);
         }
 

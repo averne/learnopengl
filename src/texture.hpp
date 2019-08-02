@@ -32,7 +32,7 @@ class Texture: public GlObject {
                 [](std::pair<GLenum, GLenum> param) { glTexParameteri(get_type(), param.first, param.second); });
         }
 
-        void bind() {
+        void bind() const {
             glBindTexture(get_type(), get_handle());
         }
 

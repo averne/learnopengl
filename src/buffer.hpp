@@ -17,7 +17,7 @@ class Buffer: public GlObject {
             glDeleteBuffers(get_nb(), &this->handle);
         }
 
-        void set_data(void *data, std::size_t size, GLenum draw_type = GL_STATIC_DRAW) {
+        void set_data(const void *data, std::size_t size, GLenum draw_type = GL_STATIC_DRAW) {
             this->size = size;
             glBufferData(get_type(), size, data, draw_type);
         }
