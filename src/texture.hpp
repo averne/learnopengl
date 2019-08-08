@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <tuple>
 #include <initializer_list>
-#include <GLFW/glfw3.h>
+#include <GL/glew.h>
 
 #include "object.hpp"
 
@@ -27,7 +27,7 @@ class Texture: public GlObject {
             glGenerateMipmap(get_type());
         }
 
-        static void set_parameters(std::initializer_list<std::pair<GLenum, GLenum>> params) {
+        static void set_parameters(std::initializer_list<std::pair<GLenum, GLenum>> &&params) {
             std::for_each(params.begin(), params.end(),
                 [](std::pair<GLenum, GLenum> param) { glTexParameteri(get_type(), param.first, param.second); });
         }

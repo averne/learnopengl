@@ -2,7 +2,8 @@
 
 #include <string>
 #include <iostream>
-#include <GLFW/glfw3.h>
+#include <stdexcept>
+#include <GL/glew.h>
 
 #include "object.hpp"
 
@@ -10,7 +11,8 @@ template <GLenum Type>
 class Shader: public GlObject {
     public:
         Shader(): GlObject(glCreateShader(get_type())) {
-            if (!get_handle()); // throw
+            if (!get_handle())
+                throw std::runtime_error("Could not create Buffer object");
         }
 
         Shader(const std::string &src): Shader() {

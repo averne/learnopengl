@@ -2,6 +2,7 @@
 #include <cmath>
 #include <iostream>
 #include <string>
+#include <algorithm>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
@@ -14,10 +15,9 @@
 #include "vertex_array.hpp"
 #include "buffer.hpp"
 #include "texture.hpp"
+#include "window.hpp"
+#include "camera.hpp"
 #include "utils.hpp"
-
-constexpr GLuint window_w = 800;
-constexpr GLuint window_h = 800;
 
 struct Vertex {
     union {
@@ -110,12 +110,12 @@ std::string vertex_shr_src = R"text(
 
     out vec2 tex_coords_1, tex_coords_2;
 
-    uniform mat4 view, proj, model;
+    uniform mat4 view_proj, model;
 
     void main() {
         tex_coords_1 = vec2(in_tex_coords_1.x, 1.0f - in_tex_coords_1.y);
         tex_coords_2 = vec2(in_tex_coords_2.x, 1.0f - in_tex_coords_2.y);
-        gl_Position  = proj * view * model * vec4(in_position, 1.0);
+        gl_Position  = view_proj * model * vec4(in_position, 1.0);
     }
 )text";
 
@@ -134,56 +134,60 @@ std::string fragment_shr_src = R"text(
     }
 )text";
 
+constexpr GLuint window_w = 800, window_h = 800;
+
+Window *g_window;
+Camera g_camera{{0.0f, 0.0f, 3.0f}, {0.0f, 0.0f, -1.0f}};
 GLfloat g_mix_factor = 0.0f;
 
-void window_sz_change_cb(GLFWwindow *window, int w, int h) {
-    glViewport(0, 0, w, h);
-}
-
-void process_keys(GLFWwindow *window, int key, int scancode, int action, int modifiers) {
+void keyboard_cb(GLFWwindow *win, int key, int scancode, int action, int modifiers) {
     switch (key) {
         case GLFW_KEY_ESCAPE:
         case GLFW_KEY_ENTER:
             if (action == GLFW_PRESS)
-                glfwSetWindowShouldClose(window, true);
+                g_window->set_should_close(true);
             break;
-        case GLFW_KEY_UP:
+        case GLFW_KEY_Q:
             if ((action == GLFW_PRESS) && (g_mix_factor < 1.0f))
                 g_mix_factor += 0.1f;
             break;
-        case GLFW_KEY_DOWN:
+        case GLFW_KEY_W:
             if ((action == GLFW_PRESS) && (g_mix_factor >= 0.1f))
                 g_mix_factor -= 0.1f;
+            break;
+        case GLFW_KEY_UP:
+            g_camera.move(Camera::Movement::Forward);
+            break;
+        case GLFW_KEY_DOWN:
+            g_camera.move(Camera::Movement::Backward);
+            break;
+        case GLFW_KEY_LEFT:
+            g_camera.move(Camera::Movement::Left);
+            break;
+        case GLFW_KEY_RIGHT:
+            g_camera.move(Camera::Movement::Right);
             break;
         default:
             break;
     }
-
 }
 
 int main(int argc, char **argv) {
     glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
-
-    GLFWwindow *window = glfwCreateWindow(window_w, window_h, "yeet", nullptr, nullptr);
-    if (!window) {
-        std::cout << "Failed to create GLFW window" << std::endl;
-        glfwTerminate();
-        return -1;
-    }
-    glfwMakeContextCurrent(window);
-    glfwSetKeyCallback(window, process_keys);
-    glfwSetFramebufferSizeCallback(window, window_sz_change_cb);
+    g_window = new Window(window_w, window_h, "yeet");
+    g_window->set_size_cb([](GLFWwindow *, int w, int h) { g_window->set_viewport(w, h); g_camera.set_viewport_dims({w, h}); });
+    g_window->set_keys_cb(keyboard_cb);
+    g_window->set_cursor_cb([](GLFWwindow *window, double x, double y) { g_camera.rotate(x, y); });
+    g_window->set_scroll_cb([](GLFWwindow *window, double x, double y) { g_camera.zoom(y); });
 
     if (glewInit() != GLEW_OK) {
         std::cout << "Failed to initialize GLEW" << std::endl;
         return -1;
     }
 
-    glViewport(0, 0, window_w, window_h);
+    glfwSetInputMode(g_window->get_window(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    g_window->set_viewport(window_w, window_h);
+    g_camera.set_viewport_dims({window_w, window_h});
     glEnable(GL_DEPTH_TEST);
 
     VertexShader vertex_shr = {vertex_shr_src};
@@ -208,9 +212,11 @@ int main(int argc, char **argv) {
     VertexBuffer vbo;
 
     vbo.set_data(vertices, sizeof(vertices));
-    vbo.set_attrib_ptr(0, SIZEOF_ARRAY(Vertex::coords), GL_FLOAT, sizeof(Vertex), (GLvoid *)offsetof(Vertex, coords));
-    vbo.set_attrib_ptr(1, SIZEOF_ARRAY(Vertex::tex_coords_1), GL_FLOAT, sizeof(Vertex), (GLvoid *)offsetof(Vertex, tex_coords_1));
-    vbo.set_attrib_ptr(2, SIZEOF_ARRAY(Vertex::tex_coords_2), GL_FLOAT, sizeof(Vertex), (GLvoid *)offsetof(Vertex, tex_coords_2));
+    vbo.set_layout({
+        BufferElement::Float3,
+        BufferElement::Float2,
+        BufferElement::Float2,
+    });
 
     int w1, h1, w2, h2;
     stbi_uc *data1 = stbi_load("data/191407_1308820425_orig.jpg", &w1, &h1, NULL, 0);
@@ -241,14 +247,13 @@ int main(int argc, char **argv) {
 
     program.set_value("tex_1", 0);
     program.set_value("tex_2", 1);
-    program.set_value("view", glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -5.0f)));
-    program.set_value("proj", glm::perspective(glm::radians(45.0f), (GLfloat)window_w / (GLfloat)window_h, 0.1f, 100.0f));
 
-    while(!glfwWindowShouldClose(window)){
+    while(!g_window->get_should_close()){
         glClearColor(0.18f, 0.20f, 0.25f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        program.set_value("factor", g_mix_factor);
+        program.set_value("factor",    g_mix_factor);
+        program.set_value("view_proj", g_camera.get_view_proj());
 
         for (std::size_t i = 0; i < 10; ++i) {
             GLfloat rot = (i % 3 == 0) ? 20.0f * i + 1 : glfwGetTime();
@@ -258,8 +263,7 @@ int main(int argc, char **argv) {
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
 
-        glfwPollEvents();
-        glfwSwapBuffers(window);
+        g_window->update();
     }
 
     glfwTerminate();

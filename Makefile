@@ -15,7 +15,7 @@ ASFLAGS           =
 LDFLAGS           =    -Wl,-pie -lGLEW -lglfw -lGL -lX11 -lpthread -lXrandr
 LINKS             =
 
-RELEASE_FLAGS     =    $(FLAGS) -O2 -ffunction-sections -fdata-sections -flto
+RELEASE_FLAGS     =    $(FLAGS) -O2 -DNDEBUG -ffunction-sections -fdata-sections -flto
 RELEASE_CFLAGS    =    $(CFLAGS)
 RELEASE_CXXFLAGS  =    $(CXXFLAGS)
 RELEASE_ASFLAGS   =    $(ASFLAGS)
@@ -51,13 +51,17 @@ LIB_FLAGS         =    $(foreach dir,$(LIBS),-L$(dir)/lib)
 
 .SUFFIXES:
 
-.PHONY: all release debug clean
+.PHONY: all release debug clean run
 
 all: release debug
 
 release: $(RELEASE_TARGET)
 
 debug: $(DEBUG_TARGET)
+
+run: debug
+	@echo "Running" $(DEBUG_TARGET)
+	@$(DEBUG_TARGET)
 
 $(RELEASE_TARGET): $(addprefix $(RELEASE),$(OFILES))
 	@echo " LD  " $@
