@@ -3,7 +3,7 @@
 #include <iostream>
 #include <string>
 #include <algorithm>
-#include <GL/glew.h>
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -180,7 +180,7 @@ int main(int argc, char **argv) {
     g_window->set_cursor_cb([](GLFWwindow *window, double x, double y) { g_camera.rotate(x, y); });
     g_window->set_scroll_cb([](GLFWwindow *window, double x, double y) { g_camera.zoom(y); });
 
-    if (glewInit() != GLEW_OK) {
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         std::cout << "Failed to initialize GLEW" << std::endl;
         return -1;
     }

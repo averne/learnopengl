@@ -2,3 +2,8 @@
 release/
 debug/
 out/
+
+*.d
+*.o
+*.a
+*.elf

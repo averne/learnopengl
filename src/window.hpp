@@ -3,7 +3,7 @@
 #include <initializer_list>
 #include <algorithm>
 #include <stdexcept>
-#include <GL/glew.h>
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 struct GlVersion {

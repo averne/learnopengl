@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <cmath>
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 class Camera {
@@ -42,6 +43,7 @@ class Camera {
                     this->pos += glm::normalize(glm::cross(this->front, glm::vec3(0.0f, 1.0f, 0.0f))) * this->speed;
                     break;
             }
+            this->pos.y = 0.0f;
             update();
         }
 
@@ -49,16 +51,16 @@ class Camera {
             if (std::isnan(this->mouse_x) && std::isnan(this->mouse_y))
                 this->mouse_x = x, this->mouse_y = y;
 
-            this->yaw   += (x - this->mouse_x) * this->sensitivity;
+            this->yaw   -= (x - this->mouse_x) * this->sensitivity;
             this->pitch += (this->mouse_y - y) * this->sensitivity;
             this->pitch  = std::clamp(this->pitch, -89.0f, 89.0f);
 
             this->mouse_x = x, this->mouse_y = y;
 
             this->front = glm::normalize(glm::vec3(
-                std::cos(glm::radians(this->yaw)) * std::cos(glm::radians(this->pitch)),
+                std::sin(glm::radians(this->yaw)) * std::cos(glm::radians(this->pitch)),
                 std::sin(glm::radians(this->pitch)),
-                std::sin(glm::radians(this->yaw)) * std::cos(glm::radians(this->pitch))
+                std::cos(glm::radians(this->yaw)) * std::cos(glm::radians(this->pitch))
             ));
 
             update();

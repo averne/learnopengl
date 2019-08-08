@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <stdexcept>
 #include <initializer_list>
-#include <GL/glew.h>
+#include <glad/glad.h>
 
 #include "object.hpp"
 #include "utils.hpp"

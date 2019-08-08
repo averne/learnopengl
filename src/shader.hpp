@@ -3,7 +3,7 @@
 #include <string>
 #include <iostream>
 #include <stdexcept>
-#include <GL/glew.h>
+#include <glad/glad.h>
 
 #include "object.hpp"
 

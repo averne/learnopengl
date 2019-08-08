@@ -5,23 +5,24 @@ RELEASE           =    release
 DEBUG             =    debug
 SOURCES           =    src
 INCLUDES          =    include
-LIBS              =
+LIBS              =    lib/glad
+OBJECTS           =    lib/glad/build/src/glad.c.o
 
 ARCH              =    -march=native -fpie
 FLAGS             =    -Wall -pipe
 CFLAGS            =    -std=gnu11
 CXXFLAGS          =    -std=gnu++17
 ASFLAGS           =
-LDFLAGS           =    -Wl,-pie -lGLEW -lglfw -lGL -lX11 -lpthread -lXrandr
-LINKS             =
+LDFLAGS           =    -Wl,-pie
+LINKS             =    -lglfw -lGL -ldl
 
-RELEASE_FLAGS     =    $(FLAGS) -O2 -DNDEBUG -ffunction-sections -fdata-sections -flto
+RELEASE_FLAGS     =    $(FLAGS) -O2 -DNDEBUG=1 -ffunction-sections -fdata-sections -flto
 RELEASE_CFLAGS    =    $(CFLAGS)
 RELEASE_CXXFLAGS  =    $(CXXFLAGS)
 RELEASE_ASFLAGS   =    $(ASFLAGS)
 RELEASE_LDFLAGS   =    $(LDFLAGS) -Wl,--gc-sections -flto -s
 
-DEBUG_FLAGS       =    $(FLAGS) -g -Og -DDEBUG=1
+DEBUG_FLAGS       =    $(FLAGS) -g -Og -DDEBUG
 DEBUG_CFLAGS      =    $(CFLAGS)
 DEBUG_CXXFLAGS    =    $(CXXFLAGS)
 DEBUG_ASFLAGS     =    $(ASFLAGS) -g
@@ -51,13 +52,16 @@ LIB_FLAGS         =    $(foreach dir,$(LIBS),-L$(dir)/lib)
 
 .SUFFIXES:
 
-.PHONY: all release debug clean run
+.PHONY: all libs release debug run clean mrproper
 
 all: release debug
 
-release: $(RELEASE_TARGET)
+libs:
+	@for dir in $(LIBS); do $(MAKE) --no-print-directory -C $$dir; done
 
-debug: $(DEBUG_TARGET)
+release: libs $(RELEASE_TARGET)
+
+debug: libs $(DEBUG_TARGET)
 
 run: debug
 	@echo "Running" $(DEBUG_TARGET)
@@ -66,13 +70,13 @@ run: debug
 $(RELEASE_TARGET): $(addprefix $(RELEASE),$(OFILES))
 	@echo " LD  " $@
 	@mkdir -p $(dir $@)
-	@$(LD) $(ARCH) $(RELEASE_LDFLAGS) $(LIB_FLAGS) $(LINKS) $^ -o $@
+	@$(LD) $(ARCH) $(RELEASE_LDFLAGS) $(LIB_FLAGS) $(LINKS) $(OBJECTS) $^ -o $@
 	@echo "Built" $(notdir $@)
 
 $(DEBUG_TARGET): $(addprefix $(DEBUG),$(OFILES))
 	@echo " LD  " $@
 	@mkdir -p $(dir $@)
-	@$(LD) $(ARCH) $(DEBUG_LDFLAGS) $(LIB_FLAGS) $(LINKS) $^ -o $@
+	@$(LD) $(ARCH) $(DEBUG_LDFLAGS) $(LIB_FLAGS) $(LINKS) $(OBJECTS) $^ -o $@
 	@echo "Built" $(notdir $@)
 
 $(RELEASE)/%.c.o: %.c
@@ -95,12 +99,12 @@ $(DEBUG)/%.cpp.o: %.cpp
 	@mkdir -p $(dir $@)
 	@$(CXX) -MMD -MP $(ARCH) $(DEBUG_FLAGS) $(DEBUG_CXXFLAGS) $(DEFINES) $(INCLUDE_FLAGS) -c $< -o $@
 
-$(RELEASE)/%.s.o: %.s
+$(RELEASE)/%.s.o: %.s %.S
 	@echo " AS  " $@
 	@mkdir -p $(dir $@)
 	@$(AS) -MMD -MP -x assembler-with-cpp $(ARCH) $(RELEASE_FLAGS) $(RELEASE_ASFLAGS) $(INCLUDE_FLAGS) -c $< -o $@
 
-$(DEBUG)/%.s.o: %.s
+$(DEBUG)/%.s.o: %.s %.S
 	@echo " AS  " $@
 	@mkdir -p $(dir $@)
 	@$(AS) -MMD -MP -x assembler-with-cpp $(ARCH) $(DEBUG_FLAGS) $(DEBUG_ASFLAGS) $(INCLUDE_FLAGS) -c $< -o $@
@@ -108,5 +112,8 @@ $(DEBUG)/%.s.o: %.s
 clean:
 	@echo Cleaning...
 	@rm -rf $(DEBUG) $(RELEASE) $(RELEASE_TARGET) $(DEBUG_TARGET) $(OUT)
+
+mrproper: clean
+	@for dir in $(LIBS); do $(MAKE) clean --no-print-directory -C $$dir; done
 
 -include $(addprefix $(RELEASE),$(DFILES)) $(addprefix $(DEBUG),$(DFILES))

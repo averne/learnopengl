@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <tuple>
 #include <initializer_list>
-#include <GL/glew.h>
+#include <glad/glad.h>
 
 #include "object.hpp"
 
