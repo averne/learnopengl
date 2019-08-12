@@ -17,6 +17,7 @@
 #include "texture.hpp"
 #include "window.hpp"
 #include "camera.hpp"
+#include "input.hpp"
 #include "utils.hpp"
 
 struct Vertex {
@@ -140,45 +141,10 @@ Window *g_window;
 Camera g_camera{{0.0f, 0.0f, 3.0f}, {0.0f, 0.0f, -1.0f}};
 GLfloat g_mix_factor = 0.0f;
 
-void keyboard_cb(GLFWwindow *win, int key, int scancode, int action, int modifiers) {
-    switch (key) {
-        case GLFW_KEY_ESCAPE:
-        case GLFW_KEY_ENTER:
-            if (action == GLFW_PRESS)
-                g_window->set_should_close(true);
-            break;
-        case GLFW_KEY_Q:
-            if ((action == GLFW_PRESS) && (g_mix_factor < 1.0f))
-                g_mix_factor += 0.1f;
-            break;
-        case GLFW_KEY_W:
-            if ((action == GLFW_PRESS) && (g_mix_factor >= 0.1f))
-                g_mix_factor -= 0.1f;
-            break;
-        case GLFW_KEY_UP:
-            g_camera.move(Camera::Movement::Forward);
-            break;
-        case GLFW_KEY_DOWN:
-            g_camera.move(Camera::Movement::Backward);
-            break;
-        case GLFW_KEY_LEFT:
-            g_camera.move(Camera::Movement::Left);
-            break;
-        case GLFW_KEY_RIGHT:
-            g_camera.move(Camera::Movement::Right);
-            break;
-        default:
-            break;
-    }
-}
-
 int main(int argc, char **argv) {
     glfwInit();
     g_window = new Window(window_w, window_h, "yeet");
-    g_window->set_size_cb([](GLFWwindow *, int w, int h) { g_window->set_viewport(w, h); g_camera.set_viewport_dims({w, h}); });
-    g_window->set_keys_cb(keyboard_cb);
-    g_window->set_cursor_cb([](GLFWwindow *window, double x, double y) { g_camera.rotate(x, y); });
-    g_window->set_scroll_cb([](GLFWwindow *window, double x, double y) { g_camera.zoom(y); });
+    g_window->set_vsync(true);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         std::cout << "Failed to initialize GLEW" << std::endl;
@@ -189,6 +155,38 @@ int main(int argc, char **argv) {
     g_window->set_viewport(window_w, window_h);
     g_camera.set_viewport_dims({window_w, window_h});
     glEnable(GL_DEPTH_TEST);
+
+    InputManager input_man{g_window};
+    input_man.register_callback<KeyPressedEvent>([](KeyPressedEvent &e) {
+        if (e.get_key() == GLFW_KEY_UP)
+            g_camera.move(Camera::Movement::Forward);
+        else if (e.get_key() == GLFW_KEY_DOWN)
+            g_camera.move(Camera::Movement::Backward);
+        else if (e.get_key() == GLFW_KEY_LEFT)
+            g_camera.move(Camera::Movement::Left);
+        else if (e.get_key() == GLFW_KEY_RIGHT)
+            g_camera.move(Camera::Movement::Right);
+    });
+    input_man.register_callback<KeyPressedEvent>([](KeyPressedEvent &e) {
+        if ((e.get_key() == GLFW_KEY_Q) && (g_mix_factor < 1.0f))
+            g_mix_factor += 0.1f;
+        else if ((e.get_key() == GLFW_KEY_W) && (g_mix_factor >= 0.1f))
+            g_mix_factor -= 0.1f;
+    });
+    input_man.register_callback<KeyPressedEvent>([](KeyPressedEvent &e) {
+        if ((e.get_key() == GLFW_KEY_ESCAPE) || (e.get_key() == GLFW_KEY_ENTER))
+            g_window->set_should_close(true);
+    });
+    input_man.register_callback<MouseMovedEvent>([](MouseMovedEvent &e) {
+        g_camera.rotate(e.get_x(), e.get_y());
+    });
+    input_man.register_callback<MouseScrolledEvent>([](MouseScrolledEvent &e) {
+        g_camera.zoom(e.get_y());
+    });
+    input_man.register_callback<WindowResizedEvent>([](WindowResizedEvent &e) {
+        g_window->set_viewport(e.get_w(), e.get_h());
+        g_camera.set_viewport_dims(e.get_dims());
+    });
 
     VertexShader vertex_shr = {vertex_shr_src};
     if (!vertex_shr.compile()) {

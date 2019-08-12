@@ -100,7 +100,7 @@ class Buffer: public GlObject {
 template <std::size_t N = 1>
 class VertexBuffer: public Buffer<GL_ARRAY_BUFFER, N> {
     public:
-        void set_layout(BufferLayout &&layout) {
+        static void set_layout(BufferLayout &&layout) {
             std::size_t i = 0, off = 0;
             for (auto &element: layout.elements) {
                 set_attrib_ptr(i, element.nb, element.gl_type, layout.stride, (GLvoid *)off, element.normalized);
@@ -108,16 +108,16 @@ class VertexBuffer: public Buffer<GL_ARRAY_BUFFER, N> {
             }
         }
 
-        void set_attrib_ptr(GLuint pos, GLuint size, GLenum type, GLuint stride = 0, GLvoid *off = nullptr, bool normalize = false) {
+        static void set_attrib_ptr(GLuint pos, GLuint size, GLenum type, GLuint stride = 0, GLvoid *off = nullptr, bool normalize = false) {
             glVertexAttribPointer(pos, size, type, normalize, stride, off);
             enable_attrib_arr(pos);
         }
 
-        void enable_attrib_arr(GLuint pos) {
+        static void enable_attrib_arr(GLuint pos) {
             glEnableVertexAttribArray(pos);
         }
 
-        void disable_attrib_arr(GLuint pos) {
+        static void disable_attrib_arr(GLuint pos) {
             glDisableVertexAttribArray(pos);
         }
 };
