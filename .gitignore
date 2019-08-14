@@ -1,7 +1,7 @@
 **.**/
-release/
-debug/
-out/
+**/release/
+**/debug/
+**/out/
 
 *.d
 *.o
