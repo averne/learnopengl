@@ -11,11 +11,12 @@
 struct BufferElement {
     enum Type: uint8_t {
         _1   = BIT(0), _2  = BIT(1), _3    = BIT(2), _4   = BIT(3),
-        Bool = BIT(4), Int = BIT(5), Float = BIT(6), _Mat = BIT(7),
-        _Nb = _1 | _2 | _3 | _4, _Type = Bool | Int | Float | _Mat,
-        Int2   = Int   | _2, Int3   = Int   | _3, Int4   = Int   | _4,
-        Float2 = Float | _2, Float3 = Float | _3, Float4 = Float | _4,
-        Mat2  = _Mat   | _2, Mat3   = _Mat  | _3, Mat4   = _Mat  | _4,
+        _Bool = BIT(4), _Int = BIT(5), _Float = BIT(6), _Mat = BIT(7),
+        _Nb = _1 | _2 | _3 | _4, _Type = _Bool | _Int | _Float | _Mat,
+        Bool  = _Bool  | _1,
+        Int   = _Int   | _1, Int2   = _Int   | _2, Int3   = _Int   | _3, Int4   = _Int   | _4,
+        Float = _Float | _1, Float2 = _Float | _2, Float3 = _Float | _3, Float4 = _Float | _4,
+                             Mat2  =  _Mat   | _2, Mat3   = _Mat   | _3, Mat4   = _Mat   | _4,
     };
 
     GLenum gl_type;
@@ -27,7 +28,7 @@ struct BufferElement {
         gl_type(get_gl_type(type)), nb(get_nb(type)), size(get_size(type)), normalized(normalized) { }
 
     static constexpr std::size_t get_size(Type type) {
-        return ((type & Type::Bool) ? 1 : 4) * get_nb(type);
+        return ((type & Type::_Bool) ? 1 : 4) * get_nb(type);
     }
 
     static constexpr std::size_t get_nb(Type type) {
@@ -37,9 +38,9 @@ struct BufferElement {
     }
 
     static constexpr GLenum get_gl_type(Type type) {
-        if      (type & Type::Bool)                 return GL_BOOL;
-        else if (type & Type::Int)                  return GL_INT;
-        else if (type & (Type::Float | Type::_Mat)) return GL_FLOAT;
+        if      (type & Type::_Bool)                 return GL_BOOL;
+        else if (type & Type::_Int)                  return GL_INT;
+        else if (type & (Type::_Float | Type::_Mat)) return GL_FLOAT;
     }
 };
 

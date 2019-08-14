@@ -27,9 +27,9 @@ class Texture: public GlObject {
             glGenerateMipmap(get_type());
         }
 
-        static void set_parameters(std::initializer_list<std::pair<GLenum, GLenum>> &&params) {
-            std::for_each(params.begin(), params.end(),
-                [](std::pair<GLenum, GLenum> param) { glTexParameteri(get_type(), param.first, param.second); });
+        template <typename ...Params>
+        static void set_parameters(Params &&...params) {
+            (glTexParameteri(get_type(), params.first, params.second), ...);
         }
 
         void bind() const {

@@ -15,7 +15,7 @@ class Window {
         Window(int w, int h, const char *name, int x = 0, int y = 0, GLboolean resizable = GL_TRUE,
                 GlVersion ver = {3, 3, GLFW_OPENGL_CORE_PROFILE}) {
             set_gl_version(ver);
-            hint({{GLFW_RESIZABLE, resizable}});
+            hint(std::pair{GLFW_RESIZABLE, resizable});
             if (!(this->window = glfwCreateWindow(w, h, name, nullptr, nullptr)))
                 throw std::runtime_error("Could not create window");
             make_ctx_current();
@@ -32,12 +32,13 @@ class Window {
         }
 
         static void set_gl_version(GlVersion ver) {
-            hint({{GLFW_CONTEXT_VERSION_MAJOR, ver.maj}, {GLFW_CONTEXT_VERSION_MINOR, ver.min}, {GLFW_OPENGL_PROFILE, ver.profile}});
+            hint(std::pair{GLFW_CONTEXT_VERSION_MAJOR, ver.maj},
+                std::pair{GLFW_CONTEXT_VERSION_MINOR, ver.min}, std::pair{GLFW_OPENGL_PROFILE, ver.profile});
         }
 
-        static void hint(std::initializer_list<std::pair<int, int>> &&hints) {
-            std::for_each(hints.begin(), hints.end(),
-                [](std::pair<int, int> hint) { glfwWindowHint(hint.first, hint.second); });
+        template <typename ...Hints>
+        static void hint(Hints &&...hints) {
+            (glfwWindowHint(hints.first, hints.second), ...);
         }
 
         static void set_viewport(int w, int h, int x = 0, int y = 0) {

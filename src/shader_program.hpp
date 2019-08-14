@@ -21,17 +21,18 @@ class ShaderProgram: public GlObject {
                 throw std::runtime_error("Could not create Buffer object");
         }
 
-        ShaderProgram(std::initializer_list<GlObject> &&shaders): ShaderProgram() {
-            set_shaders(std::forward<std::initializer_list<GlObject>>(shaders));
+        template <typename ...Shaders>
+        ShaderProgram(Shaders ...shaders): ShaderProgram() {
+            set_shaders(shaders...);
         }
 
         ~ShaderProgram() {
             glDeleteProgram(get_handle());
         }
 
-        void set_shaders(std::initializer_list<GlObject> &&shaders) const {
-            std::for_each(shaders.begin(), shaders.end(),
-                [this](const GlObject &shader) { glAttachShader(get_handle(), shader.get_handle()); });
+        template <typename ...Shaders>
+        void set_shaders(Shaders ...shaders) {
+            (glAttachShader(get_handle(), shaders.get_handle()), ...);
         }
 
         GLint link() const {

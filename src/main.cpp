@@ -228,15 +228,15 @@ int main(int argc, char **argv) {
     Texture2d tex1;
     tex1.set_data(data1, w1, h1);
     tex1.generate_mipmap();
-    tex1.set_parameters({{GL_TEXTURE_WRAP_S, GL_REPEAT}, {GL_TEXTURE_WRAP_T, GL_REPEAT},
-            {GL_TEXTURE_MIN_FILTER, GL_LINEAR}, {GL_TEXTURE_MAG_FILTER, GL_LINEAR}});
+    tex1.set_parameters(std::pair{GL_TEXTURE_WRAP_S, GL_REPEAT}, std::pair{GL_TEXTURE_WRAP_T, GL_REPEAT},
+            std::pair{GL_TEXTURE_MIN_FILTER, GL_LINEAR}, std::pair{GL_TEXTURE_MAG_FILTER, GL_LINEAR});
 
     Texture2d<>::active(1);
     Texture2d tex2;
     tex2.set_data(data2, w2, h2);
     tex2.generate_mipmap();
-    tex2.set_parameters({{GL_TEXTURE_WRAP_S, GL_REPEAT}, {GL_TEXTURE_WRAP_T, GL_REPEAT},
-            {GL_TEXTURE_MIN_FILTER, GL_LINEAR}, {GL_TEXTURE_MAG_FILTER, GL_LINEAR}});
+    tex2.set_parameters(std::pair{GL_TEXTURE_WRAP_S, GL_REPEAT}, std::pair{GL_TEXTURE_WRAP_T, GL_REPEAT},
+            std::pair{GL_TEXTURE_MIN_FILTER, GL_LINEAR}, std::pair{GL_TEXTURE_MAG_FILTER, GL_LINEAR});
 
     stbi_image_free(data1);
     stbi_image_free(data2);
