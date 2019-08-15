@@ -133,7 +133,15 @@ std::string vertex_shr_src = R"text(
 std::string fragment_shr_src = R"text(
     #version 330 core
 
-    float specular_intensity = 0.5f;
+    struct material_t {
+        vec3 ambient, diffuse, specular;
+        float shininess;
+    };
+
+    struct light_t {
+        vec3 position;
+        vec3 ambient, diffuse, specular;
+    };
 
     in vec3 frag_pos, normal;
     // in vec2 tex_coords_1, tex_coords_2;
@@ -142,24 +150,26 @@ std::string fragment_shr_src = R"text(
 
     // uniform sampler2D u_tex_1, u_tex_2;
     // uniform float     u_factor;
-    uniform float     u_ambient_intensity;
-    uniform vec3      u_view_pos;
-    uniform vec3      u_light_pos;
-    uniform vec3      u_light_col, u_obj_col;
+    uniform vec3       u_view_pos;
+    uniform material_t u_material;
+    uniform light_t    u_light;
 
     void main() {
         // tex_coords_1 = vec2(in_tex_coords_1.x, 1.0f - in_tex_coords_1.y);
         // tex_coords_2 = vec2(in_tex_coords_2.x, 1.0f - in_tex_coords_2.y);
         // out_color    = mix(texture(u_tex_1, tex_coords_1), texture(u_tex_2, tex_coords_2), u_factor);
-        vec3 norm = normalize(normal);
-        vec3 light_dir = normalize(u_light_pos - frag_pos);
+        vec3 norm      = normalize(normal);
+        vec3 light_dir = normalize(u_light.position - frag_pos);
         vec3 view_dir  = normalize(u_view_pos  - frag_pos);
 
         float diff = max(dot(norm, light_dir), 0.0f);
+        float spec = pow(max(dot(view_dir, reflect(-light_dir, norm)), 0.0), u_material.shininess);
 
-        float spec = specular_intensity * pow(max(dot(view_dir, reflect(-light_dir, norm)), 0.0), 32);
+        vec3 ambient  =        u_light.ambient  * u_material.ambient;
+        vec3 diffuse  = diff * u_light.diffuse  * u_material.diffuse;
+        vec3 specular = spec * u_light.specular * u_material.specular;
 
-        out_color = vec4((u_ambient_intensity + diff + spec) * u_light_col * u_obj_col, 1.0f);
+        out_color = vec4(ambient + diffuse + specular, 1.0f);
     }
 )text";
 
@@ -277,7 +287,6 @@ int main(int argc, char **argv) {
         BufferElement::Float2,
     });
 
-
     // int w1, h1, w2, h2;
     // stbi_uc *data1 = stbi_load("data/191407_1308820425_orig.jpg", &w1, &h1, NULL, 0);
     // stbi_uc *data2 = stbi_load("data/default_icon.jpg",           &w2, &h2, NULL, 0);
@@ -306,9 +315,11 @@ int main(int argc, char **argv) {
     program.use();
     // program.set_value("u_tex_2", 1);
     // program.set_value("u_tex_1", 0);
-    program.set_value("u_obj_col", 0.18f, 0.42f, 0.85f);
     program.set_value("u_model", glm::mat4(1.0f));
-    program.set_value("u_ambient_intensity", 0.2f);
+    program.set_value("u_material.ambient",   1.0f, 0.5f, 0.31f);
+    program.set_value("u_material.diffuse",   1.0f, 0.5f, 0.31f);
+    program.set_value("u_material.specular",  0.5f, 0.5f, 0.5f);
+    program.set_value("u_material.shininess", 32.0f);
 
     light_program.use();
 
@@ -325,9 +336,11 @@ int main(int argc, char **argv) {
         program.use();
         // program.set_value("u_factor", g_mix_factor);
         program.set_value("u_view_proj", g_camera.get_view_proj());
-        program.set_value("u_view_pos", g_camera.get_pos());
-        program.set_value("u_light_pos", light_pos);
-        program.set_value("u_light_col", light_col);
+        program.set_value("u_view_pos",  g_camera.get_pos());
+        program.set_value("u_light.position", light_pos);
+        program.set_value("u_light.ambient",  0.2f * light_col);
+        program.set_value("u_light.diffuse",  0.5f * light_col);
+        program.set_value("u_light.specular",        light_col);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
         light_vao.bind();

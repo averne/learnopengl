@@ -22,8 +22,8 @@ class ShaderProgram: public GlObject {
         }
 
         template <typename ...Shaders>
-        ShaderProgram(Shaders ...shaders): ShaderProgram() {
-            set_shaders(shaders...);
+        ShaderProgram(Shaders &&...shaders): ShaderProgram() {
+            set_shaders(std::forward<Shaders>(shaders)...);
         }
 
         ~ShaderProgram() {
@@ -31,7 +31,7 @@ class ShaderProgram: public GlObject {
         }
 
         template <typename ...Shaders>
-        void set_shaders(Shaders ...shaders) {
+        void set_shaders(Shaders &&...shaders) const {
             (glAttachShader(get_handle(), shaders.get_handle()), ...);
         }
 
@@ -92,7 +92,7 @@ class ShaderProgram: public GlObject {
         }
 
         template <typename ...Args>
-        void set_value(const std::string &name, Args ...args) {
+        void set_value(const std::string &name, Args &&...args) {
             set_value(get_uniform_loc(name), std::forward<Args>(args)...);
         }
 
