@@ -72,17 +72,20 @@ class Camera {
             update();
         }
 
-        const glm::mat4 &get_proj() const {
+        inline const glm::mat4 &get_proj() const {
             return this->proj;
         }
 
-        const glm::mat4 &get_view() const {
+        inline const glm::mat4 &get_view() const {
             return this->view;
         }
 
-        const glm::mat4 &get_view_proj() const {
+        inline const glm::mat4 &get_view_proj() const {
             return this->view_proj;
         }
+
+        inline const glm::vec3 &get_pos()   const { return this->pos; }
+        inline const glm::vec3 &get_front() const { return this->front; }
 
         void update() {
             this->proj = glm::perspective(glm::radians(this->fov), this->scr_w / this->scr_h, 0.1f, 100.0f);

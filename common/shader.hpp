@@ -42,7 +42,7 @@ class Shader: public GlObject {
         }
 
         void print_log() const {
-            std::cout << get_log() << '\n';
+            std::cout << "Failed to compile shader:\n" << get_log() << '\n';
         }
 
         static inline GLenum get_type() { return Type; }
@@ -52,10 +52,18 @@ class VertexShader: public Shader<GL_VERTEX_SHADER> {
     public:
         VertexShader() = default;
         VertexShader(const std::string &src): Shader(src) { }
+
+        void print_log() const {
+            std::cout << "Failed to compile vertex shader:\n" << get_log() << '\n';
+        }
 };
 
 class FragmentShader: public Shader<GL_FRAGMENT_SHADER> {
     public:
         FragmentShader() = default;
         FragmentShader(const std::string &src): Shader(src) { }
+
+        void print_log() const {
+            std::cout << "Failed to compile fragment shader:\n" << get_log() << '\n';
+        }
 };

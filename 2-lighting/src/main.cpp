@@ -28,6 +28,12 @@ struct Vertex {
         };
     };
     union {
+        GLfloat normal[3];
+        struct {
+            GLfloat normal_x, normal_y, normal_z;
+        };
+    };
+    union {
         GLfloat tex_coords_1[2];
         struct {
             GLfloat s_1, t_1;
@@ -42,47 +48,47 @@ struct Vertex {
 };
 
 constexpr Vertex vertices[] = {
-    { {-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f}, {0.0f, 0.0f} },
-    { { 0.5f, -0.5f, -0.5f}, {1.0f, 0.0f}, {1.0f, 0.0f} },
-    { { 0.5f,  0.5f, -0.5f}, {1.0f, 1.0f}, {1.0f, 1.0f} },
-    { { 0.5f,  0.5f, -0.5f}, {1.0f, 1.0f}, {1.0f, 1.0f} },
-    { {-0.5f,  0.5f, -0.5f}, {0.0f, 1.0f}, {0.0f, 1.0f} },
-    { {-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f}, {0.0f, 0.0f} },
+    { {-0.5f, -0.5f, -0.5f}, { 0.0f,  0.0f, -1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f} },
+    { { 0.5f, -0.5f, -0.5f}, { 0.0f,  0.0f, -1.0f}, {1.0f, 0.0f}, {1.0f, 0.0f} },
+    { { 0.5f,  0.5f, -0.5f}, { 0.0f,  0.0f, -1.0f}, {1.0f, 1.0f}, {1.0f, 1.0f} },
+    { { 0.5f,  0.5f, -0.5f}, { 0.0f,  0.0f, -1.0f}, {1.0f, 1.0f}, {1.0f, 1.0f} },
+    { {-0.5f,  0.5f, -0.5f}, { 0.0f,  0.0f, -1.0f}, {0.0f, 1.0f}, {0.0f, 1.0f} },
+    { {-0.5f, -0.5f, -0.5f}, { 0.0f,  0.0f, -1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f} },
 
-    { {-0.5f, -0.5f,  0.5f}, {0.0f, 0.0f}, {0.0f, 0.0f} },
-    { { 0.5f, -0.5f,  0.5f}, {1.0f, 0.0f}, {1.0f, 0.0f} },
-    { { 0.5f,  0.5f,  0.5f}, {1.0f, 1.0f}, {1.0f, 1.0f} },
-    { { 0.5f,  0.5f,  0.5f}, {1.0f, 1.0f}, {1.0f, 1.0f} },
-    { {-0.5f,  0.5f,  0.5f}, {0.0f, 1.0f}, {0.0f, 1.0f} },
-    { {-0.5f, -0.5f,  0.5f}, {0.0f, 0.0f}, {0.0f, 0.0f} },
+    { {-0.5f, -0.5f,  0.5f}, { 0.0f,  0.0f,  1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f} },
+    { { 0.5f, -0.5f,  0.5f}, { 0.0f,  0.0f,  1.0f}, {1.0f, 0.0f}, {1.0f, 0.0f} },
+    { { 0.5f,  0.5f,  0.5f}, { 0.0f,  0.0f,  1.0f}, {1.0f, 1.0f}, {1.0f, 1.0f} },
+    { { 0.5f,  0.5f,  0.5f}, { 0.0f,  0.0f,  1.0f}, {1.0f, 1.0f}, {1.0f, 1.0f} },
+    { {-0.5f,  0.5f,  0.5f}, { 0.0f,  0.0f,  1.0f}, {0.0f, 1.0f}, {0.0f, 1.0f} },
+    { {-0.5f, -0.5f,  0.5f}, { 0.0f,  0.0f,  1.0f}, {0.0f, 0.0f}, {0.0f, 0.0f} },
 
-    { {-0.5f,  0.5f,  0.5f}, {1.0f, 0.0f}, {1.0f, 0.0f} },
-    { {-0.5f,  0.5f, -0.5f}, {1.0f, 1.0f}, {1.0f, 1.0f} },
-    { {-0.5f, -0.5f, -0.5f}, {0.0f, 1.0f}, {0.0f, 1.0f} },
-    { {-0.5f, -0.5f, -0.5f}, {0.0f, 1.0f}, {0.0f, 1.0f} },
-    { {-0.5f, -0.5f,  0.5f}, {0.0f, 0.0f}, {0.0f, 0.0f} },
-    { {-0.5f,  0.5f,  0.5f}, {1.0f, 0.0f}, {1.0f, 0.0f} },
+    { {-0.5f,  0.5f,  0.5f}, {-1.0f,  0.0f,  0.0f}, {1.0f, 0.0f}, {1.0f, 0.0f} },
+    { {-0.5f,  0.5f, -0.5f}, {-1.0f,  0.0f,  0.0f}, {1.0f, 1.0f}, {1.0f, 1.0f} },
+    { {-0.5f, -0.5f, -0.5f}, {-1.0f,  0.0f,  0.0f}, {0.0f, 1.0f}, {0.0f, 1.0f} },
+    { {-0.5f, -0.5f, -0.5f}, {-1.0f,  0.0f,  0.0f}, {0.0f, 1.0f}, {0.0f, 1.0f} },
+    { {-0.5f, -0.5f,  0.5f}, {-1.0f,  0.0f,  0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f} },
+    { {-0.5f,  0.5f,  0.5f}, {-1.0f,  0.0f,  0.0f}, {1.0f, 0.0f}, {1.0f, 0.0f} },
 
-    { { 0.5f,  0.5f,  0.5f}, {1.0f, 0.0f}, {1.0f, 0.0f} },
-    { { 0.5f,  0.5f, -0.5f}, {1.0f, 1.0f}, {1.0f, 1.0f} },
-    { { 0.5f, -0.5f, -0.5f}, {0.0f, 1.0f}, {0.0f, 1.0f} },
-    { { 0.5f, -0.5f, -0.5f}, {0.0f, 1.0f}, {0.0f, 1.0f} },
-    { { 0.5f, -0.5f,  0.5f}, {0.0f, 0.0f}, {0.0f, 0.0f} },
-    { { 0.5f,  0.5f,  0.5f}, {1.0f, 0.0f}, {1.0f, 0.0f} },
+    { { 0.5f,  0.5f,  0.5f}, { 1.0f,  0.0f,  0.0f}, {1.0f, 0.0f}, {1.0f, 0.0f} },
+    { { 0.5f,  0.5f, -0.5f}, { 1.0f,  0.0f,  0.0f}, {1.0f, 1.0f}, {1.0f, 1.0f} },
+    { { 0.5f, -0.5f, -0.5f}, { 1.0f,  0.0f,  0.0f}, {0.0f, 1.0f}, {0.0f, 1.0f} },
+    { { 0.5f, -0.5f, -0.5f}, { 1.0f,  0.0f,  0.0f}, {0.0f, 1.0f}, {0.0f, 1.0f} },
+    { { 0.5f, -0.5f,  0.5f}, { 1.0f,  0.0f,  0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f} },
+    { { 0.5f,  0.5f,  0.5f}, { 1.0f,  0.0f,  0.0f}, {1.0f, 0.0f}, {1.0f, 0.0f} },
 
-    { {-0.5f, -0.5f, -0.5f}, {0.0f, 1.0f}, {0.0f, 1.0f} },
-    { { 0.5f, -0.5f, -0.5f}, {1.0f, 1.0f}, {1.0f, 1.0f} },
-    { { 0.5f, -0.5f,  0.5f}, {1.0f, 0.0f}, {1.0f, 0.0f} },
-    { { 0.5f, -0.5f,  0.5f}, {1.0f, 0.0f}, {1.0f, 0.0f} },
-    { {-0.5f, -0.5f,  0.5f}, {0.0f, 0.0f}, {0.0f, 0.0f} },
-    { {-0.5f, -0.5f, -0.5f}, {0.0f, 1.0f}, {0.0f, 1.0f} },
+    { {-0.5f, -0.5f, -0.5f}, { 0.0f, -1.0f,  0.0f}, {0.0f, 1.0f}, {0.0f, 1.0f} },
+    { { 0.5f, -0.5f, -0.5f}, { 0.0f, -1.0f,  0.0f}, {1.0f, 1.0f}, {1.0f, 1.0f} },
+    { { 0.5f, -0.5f,  0.5f}, { 0.0f, -1.0f,  0.0f}, {1.0f, 0.0f}, {1.0f, 0.0f} },
+    { { 0.5f, -0.5f,  0.5f}, { 0.0f, -1.0f,  0.0f}, {1.0f, 0.0f}, {1.0f, 0.0f} },
+    { {-0.5f, -0.5f,  0.5f}, { 0.0f, -1.0f,  0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f} },
+    { {-0.5f, -0.5f, -0.5f}, { 0.0f, -1.0f,  0.0f}, {0.0f, 1.0f}, {0.0f, 1.0f} },
 
-    { {-0.5f,  0.5f, -0.5f}, {0.0f, 1.0f}, {0.0f, 1.0f} },
-    { { 0.5f,  0.5f, -0.5f}, {1.0f, 1.0f}, {1.0f, 1.0f} },
-    { { 0.5f,  0.5f,  0.5f}, {1.0f, 0.0f}, {1.0f, 0.0f} },
-    { { 0.5f,  0.5f,  0.5f}, {1.0f, 0.0f}, {1.0f, 0.0f} },
-    { {-0.5f,  0.5f,  0.5f}, {0.0f, 0.0f}, {0.0f, 0.0f} },
-    { {-0.5f,  0.5f, -0.5f}, {0.0f, 1.0f}, {0.0f, 1.0f} },
+    { {-0.5f,  0.5f, -0.5f}, { 0.0f,  1.0f,  0.0f}, {0.0f, 1.0f}, {0.0f, 1.0f} },
+    { { 0.5f,  0.5f, -0.5f}, { 0.0f,  1.0f,  0.0f}, {1.0f, 1.0f}, {1.0f, 1.0f} },
+    { { 0.5f,  0.5f,  0.5f}, { 0.0f,  1.0f,  0.0f}, {1.0f, 0.0f}, {1.0f, 0.0f} },
+    { { 0.5f,  0.5f,  0.5f}, { 0.0f,  1.0f,  0.0f}, {1.0f, 0.0f}, {1.0f, 0.0f} },
+    { {-0.5f,  0.5f,  0.5f}, { 0.0f,  1.0f,  0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f} },
+    { {-0.5f,  0.5f, -0.5f}, { 0.0f,  1.0f,  0.0f}, {0.0f, 1.0f}, {0.0f, 1.0f} },
 };
 
 // struct CubeParam {
@@ -106,34 +112,54 @@ std::string vertex_shr_src = R"text(
     #version 330 core
 
     layout (location = 0) in vec3 in_position;
-    layout (location = 1) in vec2 in_tex_coords_1;
-    layout (location = 2) in vec2 in_tex_coords_2;
+    layout (location = 1) in vec3 in_normal;
+    // layout (location = 2) in vec2 in_tex_coords_1;
+    // layout (location = 3) in vec2 in_tex_coords_2;
 
-    out vec2 tex_coords_1, tex_coords_2;
+    out vec3 normal, frag_pos;
+    // out vec2 tex_coords_1, tex_coords_2;
 
     uniform mat4 u_view_proj, u_model;
 
     void main() {
-        gl_Position = u_view_proj * u_model * vec4(in_position, 1.0);
+        // tex_coords_1 = vec2(in_tex_coords_1.x, 1.0f - in_tex_coords_1.y);
+        // tex_coords_2 = vec2(in_tex_coords_2.x, 1.0f - in_tex_coords_2.y);
+        frag_pos = vec3(u_model * vec4(in_position, 1.0f));
+        normal = in_normal;
+        gl_Position = u_view_proj * vec4(frag_pos, 1.0f);
     }
 )text";
 
 std::string fragment_shr_src = R"text(
     #version 330 core
 
-    in vec2 tex_coords_1, tex_coords_2;
+    float specular_intensity = 0.5f;
+
+    in vec3 frag_pos, normal;
+    // in vec2 tex_coords_1, tex_coords_2;
 
     out vec4 out_color;
 
-    uniform sampler2D u_tex_1, u_tex_2;
-    uniform float     u_factor;
+    // uniform sampler2D u_tex_1, u_tex_2;
+    // uniform float     u_factor;
+    uniform float     u_ambient_intensity;
+    uniform vec3      u_view_pos;
+    uniform vec3      u_light_pos;
     uniform vec3      u_light_col, u_obj_col;
 
     void main() {
         // tex_coords_1 = vec2(in_tex_coords_1.x, 1.0f - in_tex_coords_1.y);
         // tex_coords_2 = vec2(in_tex_coords_2.x, 1.0f - in_tex_coords_2.y);
         // out_color    = mix(texture(u_tex_1, tex_coords_1), texture(u_tex_2, tex_coords_2), u_factor);
-        out_color = vec4(u_light_col * u_obj_col, 1.0f);
+        vec3 norm = normalize(normal);
+        vec3 light_dir = normalize(u_light_pos - frag_pos);
+        vec3 view_dir  = normalize(u_view_pos  - frag_pos);
+
+        float diff = max(dot(norm, light_dir), 0.0f);
+
+        float spec = specular_intensity * pow(max(dot(view_dir, reflect(-light_dir, norm)), 0.0), 32);
+
+        out_color = vec4((u_ambient_intensity + diff + spec) * u_light_col * u_obj_col, 1.0f);
     }
 )text";
 
@@ -142,15 +168,17 @@ std::string light_fragment_shr_src = R"text(
 
     out vec4 out_color;
 
+    uniform vec3 u_light_col;
+
     void main() {
-        out_color = vec4(1.0f);
+        out_color = vec4(u_light_col, 1.0f);
     }
 )text";
 
 constexpr GLuint window_w = 800, window_h = 800;
 
 Window *g_window;
-Camera g_camera{{0.0f, 0.0f, 3.0f}, {0.0f, 0.0f, -1.0f}};
+Camera g_camera{{0.0f, 0.0f, 5.0f}, {0.0f, 0.0f, -1.0f}};
 // GLfloat g_mix_factor = 0.0f;
 
 int main(int argc, char **argv) {
@@ -236,12 +264,14 @@ int main(int argc, char **argv) {
     vbo.set_data(vertices, sizeof(vertices));
     vbo.set_layout({
         BufferElement::Float3,
+        BufferElement::Float3,
         BufferElement::Float2,
         BufferElement::Float2,
     });
 
     VertexArray light_vao;
     vbo.set_layout({
+        BufferElement::Float3,
         BufferElement::Float3,
         BufferElement::Float2,
         BufferElement::Float2,
@@ -276,26 +306,36 @@ int main(int argc, char **argv) {
     program.use();
     // program.set_value("u_tex_2", 1);
     // program.set_value("u_tex_1", 0);
-    program.set_value("u_light_col", 1.0f, 1.0f, 1.0f);
-    program.set_value("u_obj_col",   0.18f, 0.42f, 0.85f);
-    program.set_value("u_model", glm::translate(glm::mat4(1.0f), glm::vec3(-0.5f, 0.5f, -2.0f)));
+    program.set_value("u_obj_col", 0.18f, 0.42f, 0.85f);
+    program.set_value("u_model", glm::mat4(1.0f));
+    program.set_value("u_ambient_intensity", 0.2f);
 
     light_program.use();
-    light_program.set_value("u_model", glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, -1.5f, -2.5f)));
 
     while(!g_window->get_should_close()) {
         glClearColor(0.18f, 0.20f, 0.25f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        glm::vec3 light_pos = glm::vec3(2.0f * glm::cos(glfwGetTime()),
+            glm::cos(0.3f * glfwGetTime()), 2.0f * glm::sin(glfwGetTime()));
+        glm::vec3 light_col = glm::vec3(glm::sin(7.0f * glfwGetTime()),
+            glm::sin(3.0f * glfwGetTime()), glm::sin(5.0f * glfwGetTime()));
+
         vao.bind();
         program.use();
-        // program.set_value("u_factor",    g_mix_factor);
+        // program.set_value("u_factor", g_mix_factor);
         program.set_value("u_view_proj", g_camera.get_view_proj());
+        program.set_value("u_view_pos", g_camera.get_pos());
+        program.set_value("u_light_pos", light_pos);
+        program.set_value("u_light_col", light_col);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
         light_vao.bind();
         light_program.use();
         light_program.set_value("u_view_proj", g_camera.get_view_proj());
+        light_program.set_value("u_model",
+            glm::scale(glm::translate(glm::mat4(1.0f), light_pos), glm::vec3(0.3f)));
+        light_program.set_value("u_light_col", light_col);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
         g_window->update();
