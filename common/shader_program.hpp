@@ -24,6 +24,10 @@ class ShaderProgram: public GlObject {
         template <typename ...Shaders>
         ShaderProgram(Shaders &&...shaders): ShaderProgram() {
             set_shaders(std::forward<Shaders>(shaders)...);
+            if (!link()) {
+                print_log();
+                throw std::runtime_error("Could not link shader program");
+            }
         }
 
         ~ShaderProgram() {

@@ -2,6 +2,7 @@
 
 #include <string>
 #include <iostream>
+#include <fstream>
 #include <stdexcept>
 #include <glad/glad.h>
 
@@ -15,8 +16,19 @@ class Shader: public GlObject {
                 throw std::runtime_error("Could not create Buffer object");
         }
 
-        Shader(const std::string &src): Shader() {
+        Shader(const std::string &path): Shader() {
+            std::ifstream fp{path, std::ios::in | std::ios::ate};
+            if (!fp.is_open() || fp.bad())
+                throw std::runtime_error("Could not open shader file");
+            std::size_t size = fp.tellg();
+            std::string src(size, ' ');
+            fp.seekg(0);
+            fp.read(src.data(), size);
             set_source(src);
+            if (!compile()) {
+                print_log();
+                throw std::runtime_error("Could not compile shader");
+            }
         }
 
         ~Shader() {

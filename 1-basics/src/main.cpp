@@ -102,39 +102,6 @@ constexpr CubeParam cube_params[] = {
     { glm::vec3(-1.3f,  1.0f, - 1.5f), glm::vec3( 0.93f, -0.13f,  0.85f) },
 };
 
-std::string vertex_shr_src = R"text(
-    #version 330 core
-
-    layout (location = 0) in vec3 in_position;
-    layout (location = 1) in vec2 in_tex_coords_1;
-    layout (location = 2) in vec2 in_tex_coords_2;
-
-    out vec2 tex_coords_1, tex_coords_2;
-
-    uniform mat4 view_proj, model;
-
-    void main() {
-        tex_coords_1 = vec2(in_tex_coords_1.x, 1.0f - in_tex_coords_1.y);
-        tex_coords_2 = vec2(in_tex_coords_2.x, 1.0f - in_tex_coords_2.y);
-        gl_Position  = view_proj * model * vec4(in_position, 1.0);
-    }
-)text";
-
-std::string fragment_shr_src = R"text(
-    #version 330 core
-
-    in vec2 tex_coords_1, tex_coords_2;
-
-    out vec4 out_color;
-
-    uniform sampler2D tex_1, tex_2;
-    uniform float     factor;
-
-    void main() {
-        out_color = mix(texture(tex_1, tex_coords_1), texture(tex_2, tex_coords_2), factor);
-    }
-)text";
-
 constexpr GLuint window_w = 800, window_h = 800;
 
 Window *g_window;
@@ -188,23 +155,7 @@ int main(int argc, char **argv) {
         g_camera.set_viewport_dims(e.get_dims());
     });
 
-    VertexShader vertex_shr = {vertex_shr_src};
-    if (!vertex_shr.compile()) {
-        vertex_shr.print_log();
-        return 1;
-    }
-
-    FragmentShader fragment_shr = {fragment_shr_src};
-    if (!fragment_shr.compile()) {
-        fragment_shr.print_log();
-        return 1;
-    }
-
-    ShaderProgram program = {vertex_shr, fragment_shr};
-    if (!program.link()) {
-        program.print_log();
-        return 1;
-    }
+    ShaderProgram program{VertexShader{"shaders/cube.vert"}, FragmentShader{"shaders/cube.frag"}};
 
     VertexArray vao;
     VertexBuffer vbo;
@@ -216,30 +167,8 @@ int main(int argc, char **argv) {
         BufferElement::Float2,
     });
 
-    int w1, h1, w2, h2;
-    stbi_uc *data1 = stbi_load("data/191407_1308820425_orig.jpg", &w1, &h1, NULL, 0);
-    stbi_uc *data2 = stbi_load("data/default_icon.jpg",           &w2, &h2, NULL, 0);
-    if (!(data1 && data2)) {
-        std::cout << "Failed to load textures" << std::endl;
-        return 1;
-    }
-
-    Texture2d<>::active(0);
-    Texture2d tex1;
-    tex1.set_data(data1, w1, h1);
-    tex1.generate_mipmap();
-    tex1.set_parameters(std::pair{GL_TEXTURE_WRAP_S, GL_REPEAT}, std::pair{GL_TEXTURE_WRAP_T, GL_REPEAT},
-            std::pair{GL_TEXTURE_MIN_FILTER, GL_LINEAR}, std::pair{GL_TEXTURE_MAG_FILTER, GL_LINEAR});
-
-    Texture2d<>::active(1);
-    Texture2d tex2;
-    tex2.set_data(data2, w2, h2);
-    tex2.generate_mipmap();
-    tex2.set_parameters(std::pair{GL_TEXTURE_WRAP_S, GL_REPEAT}, std::pair{GL_TEXTURE_WRAP_T, GL_REPEAT},
-            std::pair{GL_TEXTURE_MIN_FILTER, GL_LINEAR}, std::pair{GL_TEXTURE_MAG_FILTER, GL_LINEAR});
-
-    stbi_image_free(data1);
-    stbi_image_free(data2);
+    Texture2d tex1{"data/191407_1308820425_orig.jpg", 0};
+    Texture2d tex2{"data/default_icon.jpg",           1};
 
     program.use();
 
