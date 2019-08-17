@@ -102,6 +102,20 @@ constexpr CubeParam cube_params[] = {
     { glm::vec3(-1.3f,  1.0f, - 1.5f), glm::vec3( 0.93f, -0.13f,  0.85f) },
 };
 
+struct PointLightParams {
+    glm::vec3 color;
+    float radius;
+    float speed_x, speed_y, speed_z;
+};
+
+PointLightParams pt_light_params[] = {
+    { glm::vec3(1.0f, 0.0f, 1.0f), 1.9f, 0.7f, 0.4f, 0.7f },
+    { glm::vec3(1.0f, 1.0f, 0.0f), 2.5f, 0.5f, 0.4f, 0.2f },
+    { glm::vec3(0.0f, 1.0f, 1.0f), 2.2f, 0.3f, 0.2f, 0.9f },
+    { glm::vec3(0.8f, 0.5f, 0.1f), 2.1f, 0.4f, 0.2f, 0.3f },
+    { glm::vec3(0.3f, 0.8f, 0.5f), 2.0f, 0.5f, 0.8f, 0.6f },
+};
+
 constexpr GLuint window_w = 800, window_h = 800;
 
 Window *g_window;
@@ -185,32 +199,54 @@ int main(int argc, char **argv) {
         (tex_to_use ? spec_tex_1 : spec_tex_2).bind();
     });
 
-    glm::vec3 light_col = glm::vec3(1.0f);
+    glm::vec3 dir_light_col = glm::vec3(0.9f, 0.1f, 0.2f);
+    glm::vec3 spotlight_col = glm::vec3(0.4f, 0.4f, 1.0f);
 
-    program.use();
+    program.bind();
     program.set_value("u_material.diffuse",   0);
     program.set_value("u_material.specular",  1);
     program.set_value("u_material.emission",  2);
     program.set_value("u_material.shininess", 32.0f);
-    program.set_value("u_light.ambient",  0.4f * light_col);
-    program.set_value("u_light.diffuse",  0.7f * light_col);
-    program.set_value("u_light.specular",        light_col);
 
-    light_program.use();
-    light_program.set_value("u_light_col", light_col);
+    for (std::size_t i = 0; i < 5; ++i) {
+        std::string idx = std::to_string(i);
+        program.set_value("u_pt_light[" + idx + "].light.ambient",  0.1f  * pt_light_params[i].color);
+        program.set_value("u_pt_light[" + idx + "].light.diffuse",  0.3f  * pt_light_params[i].color);
+        program.set_value("u_pt_light[" + idx + "].light.specular", 0.6f  * pt_light_params[i].color);
+        program.set_value("u_pt_light[" + idx + "].constant",       1.0f);
+        program.set_value("u_pt_light[" + idx + "].linear",         0.09f);
+        program.set_value("u_pt_light[" + idx + "].quadratic",      0.032f);
+    }
 
+    program.set_value("u_dir_light.light.ambient",   0.1f * dir_light_col);
+    program.set_value("u_dir_light.light.diffuse",   0.5f * dir_light_col);
+    program.set_value("u_dir_light.light.specular",         dir_light_col);
+    program.set_value("u_dir_light.direction",      -0.2f, -1.0f, -0.3f);
+
+    program.set_value("u_spotlight.light.diffuse",   spotlight_col);
+    program.set_value("u_spotlight.light.specular",  spotlight_col);
+    program.set_value("u_spotlight.inner_cutoff",    glm::cos(glm::radians(9.5f)));
+    program.set_value("u_spotlight.outer_cutoff",    glm::cos(glm::radians(12.5f)));
+
+    glm::vec3 array_pos[5];
     while(!g_window->get_should_close()) {
         glClearColor(0.18f, 0.20f, 0.25f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        glm::vec3 light_pos = glm::vec3(2.0f * glm::cos(glfwGetTime()),
-            glm::cos(0.3f * glfwGetTime()), 2.0f * glm::sin(glfwGetTime()));;
-
         vao.bind();
-        program.use();
-        program.set_value("u_view_proj", g_camera.get_view_proj());
-        program.set_value("u_view_pos",  g_camera.get_pos());
-        program.set_value("u_light.position", light_pos);
+        program.bind();
+        program.set_value("u_view_proj",           g_camera.get_view_proj());
+        program.set_value("u_view_pos",            g_camera.get_pos());
+        program.set_value("u_spotlight.position",  g_camera.get_pos());
+        program.set_value("u_spotlight.direction", g_camera.get_front());
+        for (std::size_t i = 0; i < 5; ++i) {
+            array_pos[i] = glm::vec3(
+                pt_light_params[i].radius * glm::cos(pt_light_params[i].speed_x * glfwGetTime()),
+                pt_light_params[i].radius * glm::cos(pt_light_params[i].speed_y * glfwGetTime()),
+                pt_light_params[i].radius * glm::sin(pt_light_params[i].speed_z * glfwGetTime())
+            );
+            program.set_value("u_pt_light[" + std::to_string(i) + "].position", array_pos[i]);
+        }
 
         for (std::size_t i = 0; i < 10; ++i) {
             GLfloat rot = (i % 3 == 0) ? 20.0f * i + 1 : glfwGetTime();
@@ -221,11 +257,14 @@ int main(int argc, char **argv) {
         }
 
         light_vao.bind();
-        light_program.use();
+        light_program.bind();
         light_program.set_value("u_view_proj", g_camera.get_view_proj());
-        light_program.set_value("u_model",
-            glm::scale(glm::translate(glm::mat4(1.0f), light_pos), glm::vec3(0.3f)));
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        for (std::size_t i = 0; i < 5; ++i) {
+            light_program.set_value("u_light_col", pt_light_params[i].color);
+            light_program.set_value("u_model",
+                glm::scale(glm::translate(glm::mat4(1.0f), array_pos[i]), glm::vec3(0.3f)));
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
 
         g_window->update();
     }

@@ -51,11 +51,20 @@ class ShaderProgram: public GlObject {
             glUseProgram(get_handle());
         }
 
+        static void unuse() {
+            glUseProgram(0);
+        }
+
+        inline void bind() const { use(); }
+        inline static void unbind() { unuse(); }
+
         inline GLint get_uniform_loc(const std::string &name) {
             auto it = this->uniform_loc_cache.find(name);
             if (it != this->uniform_loc_cache.end())
                 return it->second;
             GLint loc = glGetUniformLocation(get_handle(), name.c_str());
+            if (loc == -1)
+                std::cout << "Could not find uniform " << name << '\n';
             this->uniform_loc_cache[name] = loc;
             return loc;
 
