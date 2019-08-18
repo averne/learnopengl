@@ -211,15 +211,15 @@ int main(int argc, char **argv) {
     for (std::size_t i = 0; i < 5; ++i) {
         std::string idx = std::to_string(i);
         program.set_value("u_pt_light[" + idx + "].light.ambient",  0.1f  * pt_light_params[i].color);
-        program.set_value("u_pt_light[" + idx + "].light.diffuse",  0.3f  * pt_light_params[i].color);
-        program.set_value("u_pt_light[" + idx + "].light.specular", 0.6f  * pt_light_params[i].color);
+        program.set_value("u_pt_light[" + idx + "].light.diffuse",  0.5f  * pt_light_params[i].color);
+        program.set_value("u_pt_light[" + idx + "].light.specular", 0.7f  * pt_light_params[i].color);
         program.set_value("u_pt_light[" + idx + "].constant",       1.0f);
         program.set_value("u_pt_light[" + idx + "].linear",         0.09f);
         program.set_value("u_pt_light[" + idx + "].quadratic",      0.032f);
     }
 
     program.set_value("u_dir_light.light.ambient",   0.1f * dir_light_col);
-    program.set_value("u_dir_light.light.diffuse",   0.5f * dir_light_col);
+    program.set_value("u_dir_light.light.diffuse",   0.3f * dir_light_col);
     program.set_value("u_dir_light.light.specular",         dir_light_col);
     program.set_value("u_dir_light.direction",      -0.2f, -1.0f, -0.3f);
 

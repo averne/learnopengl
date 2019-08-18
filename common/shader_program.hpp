@@ -7,7 +7,7 @@
 #include <type_traits>
 #include <utility>
 #include <stdexcept>
-#include <unordered_map>
+#include <map>
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 
@@ -120,5 +120,10 @@ class ShaderProgram: public GlObject {
         }
 
     private:
-        std::unordered_map<std::string, GLint> uniform_loc_cache;
+        struct Comp {
+            bool operator()(const std::string &s1, const std::string &s2) const {
+                return strcmp(s1.c_str(), s2.c_str()) < 0;
+            }
+        };
+        std::map<std::string, GLint, Comp> uniform_loc_cache;
 };
