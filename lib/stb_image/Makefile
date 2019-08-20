@@ -1,4 +1,4 @@
-TARGET            =    libglad
+TARGET            =    libstbi
 EXTENSION         =    a
 OUT               =    lib
 BUILD             =    build

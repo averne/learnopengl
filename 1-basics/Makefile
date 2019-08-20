@@ -4,9 +4,8 @@ OUT               =    out
 RELEASE           =    release
 DEBUG             =    debug
 SOURCES           =    src
-INCLUDES          =    ../include ../common
-LIBS              =    ../lib/glad
-OBJECTS           =    ../lib/glad/build/src/glad.c.o
+INCLUDES          =    ../common
+LIBS              =    ../lib/glad ../lib/stb_image
 
 ARCH              =    -march=native -fpie
 FLAGS             =    -Wall -pipe
@@ -14,7 +13,7 @@ CFLAGS            =    -std=gnu11
 CXXFLAGS          =    -std=gnu++17
 ASFLAGS           =
 LDFLAGS           =    -Wl,-pie
-LINKS             =    -lglfw -lGL -ldl
+LINKS             =    -lglfw -lGL -lglad -ldl -lstbi
 
 RELEASE_FLAGS     =    $(FLAGS) -O2 -DNDEBUG=1 -ffunction-sections -fdata-sections -flto
 RELEASE_CFLAGS    =    $(CFLAGS)
@@ -70,13 +69,13 @@ run: debug
 $(RELEASE_TARGET): $(addprefix $(RELEASE),$(OFILES))
 	@echo " LD  " $@
 	@mkdir -p $(dir $@)
-	@$(LD) $(ARCH) $(RELEASE_LDFLAGS) $(LIB_FLAGS) $(LINKS) $(OBJECTS) $^ -o $@
+	@$(LD) $(ARCH) $(RELEASE_LDFLAGS) $(LIB_FLAGS) $^ -o $@ $(LINKS)
 	@echo "Built" $(notdir $@)
 
 $(DEBUG_TARGET): $(addprefix $(DEBUG),$(OFILES))
 	@echo " LD  " $@
 	@mkdir -p $(dir $@)
-	@$(LD) $(ARCH) $(DEBUG_LDFLAGS) $(LIB_FLAGS) $(LINKS) $(OBJECTS) $^ -o $@
+	@$(LD) $(ARCH) $(DEBUG_LDFLAGS) $(LIB_FLAGS) $^ -o $@ $(LINKS)
 	@echo "Built" $(notdir $@)
 
 $(RELEASE)/%.c.o: %.c
