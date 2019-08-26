@@ -1,5 +1,7 @@
 #pragma once
 
+#include <utility>
+#include <functional>
 #include <type_traits>
 
 #define _STRINGIFY(x)      #x
@@ -39,3 +41,13 @@ struct Area {
     protected:
         T w = 0, h = 0;
 };
+
+template <typename ...Args>
+static inline void bind_all(Args &&...args) {
+    (args.bind(), ...);
+}
+
+template <typename ...Args>
+static inline void unbind_all(Args &&...args) {
+    (args.unbind(), ...);
+}

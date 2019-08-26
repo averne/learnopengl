@@ -9,6 +9,12 @@
 
 #include "object.hpp"
 
+enum class TextureType {
+    Diffuse,
+    Specular,
+    Normal,
+};
+
 template <GLenum Type, std::size_t N = 1>
 class Texture: public GlObject {
     public:
@@ -33,6 +39,10 @@ class Texture: public GlObject {
 
         static void active(GLuint idx) {
             glActiveTexture(GL_TEXTURE0 + idx);
+        }
+
+        static void deactive(GLuint idx) {
+            glActiveTexture(GL_TEXTURE0);
         }
 
         static void generate_mipmap() {

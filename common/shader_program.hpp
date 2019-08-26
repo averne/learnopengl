@@ -10,6 +10,7 @@
 #include <map>
 #include <glad/glad.h>
 #include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "shader.hpp"
 #include "object.hpp"
